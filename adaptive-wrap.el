@@ -4,7 +4,7 @@
 
 ;; Author: Stephen Berman <stephen.berman@gmx.net>
 ;;         Stefan Monnier <monnier@iro.umontreal.ca>
-;; Version: 0.4
+;; Version: 0.5
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -103,28 +103,22 @@ extra indent = 2
         (widen)
         (remove-text-properties (point-min) (point-max) '(wrap-prefix nil))))))
 
-;;;###autoload
-(easy-menu-add-item menu-bar-options-menu
-                    '("Line Wrapping in This Buffer")
-                    ["Adaptive Wrap"
-                     (lambda ()
-                       (interactive)
-		       (if adaptive-wrap-prefix-mode
-			   (adaptive-wrap-prefix-mode -1)
-			 (adaptive-wrap-prefix-mode 1)))
-                     :visible (menu-bar-menu-frame-live-and-visible-p)
-                     :help "Show wrapped long lines with an adjustable prefix"
-                     :style toggle
-                     :selected adaptive-wrap-prefix-mode])
-
-(defun adaptive-wrap-unload-function ()
-  "Cleanup adaptive-wrap package."
-  (easy-menu-remove-item menu-bar-options-menu
-                         '("Line Wrapping in This Buffer")
-                         "Adaptive Wrap"))
+(define-key-after (lookup-key menu-bar-options-menu [line-wrapping])
+  [adaptive-wrap]
+  '(menu-item "Adaptive Wrap" adaptive-wrap-prefix-mode
+	      :visible (menu-bar-menu-frame-live-and-visible-p)
+	      :help "Show wrapped long lines with an adjustable prefix"
+	      :button (:toggle . (bound-and-true-p adaptive-wrap-prefix-mode)))
+  word-wrap)
 
 ;;;; ChangeLog:
 
+;; 2013-07-31  Stephen Berman  <stephen.berman@gmx.net>
+;; 
+;; 	* adaptive-wrap.el: Fix bug#14974 by using define-key-after
+;; 	instead of easy-menu-add-item.
+;; 	(adaptive-wrap-unload-function): Remove.
+;; 
 ;; 2013-07-29  Stephen Berman  <stephen.berman@gmx.net>
 ;; 
 ;; 	* adaptive-wrap.el: Require easymenu (bug#14974).
