@@ -4,7 +4,7 @@
 
 ;; Author: Stephen Berman <stephen.berman@gmx.net>
 ;;         Stefan Monnier <monnier@iro.umontreal.ca>
-;; Version: 0.3
+;; Version: 0.4
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 ;; adaptive-fill-mode, but without actually changing the buffer's text.
 
 ;;; Code:
+
+(require 'easymenu)
 
 (defcustom adaptive-wrap-extra-indent 0
   "Number of extra spaces to indent in `adaptive-wrap-prefix-mode'.
@@ -123,6 +125,10 @@ extra indent = 2
 
 ;;;; ChangeLog:
 
+;; 2013-07-29  Stephen Berman  <stephen.berman@gmx.net>
+;; 
+;; 	* adaptive-wrap.el: Require easymenu (bug#14974).
+;; 
 ;; 2013-07-19  R?diger Sonderfeld  <ruediger@c-plusplus.de>
 ;; 
 ;; 	* adaptive-wrap.el (menu-bar-options-menu): Add checkbox for Adaptive Wrap
