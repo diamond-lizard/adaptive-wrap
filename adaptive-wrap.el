@@ -1,10 +1,10 @@
 ;;; adaptive-wrap.el --- Smart line-wrapping with wrap-prefix
 
-;; Copyright (C) 2011, 2012  Free Software Foundation, Inc.
+;; Copyright (C) 2011-2013  Free Software Foundation, Inc.
 
 ;; Author: Stephen Berman <stephen.berman@gmx.net>
 ;;         Stefan Monnier <monnier@iro.umontreal.ca>
-;; Version: 0.2
+;; Version: 0.3
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -58,7 +58,9 @@ extra indent = 2
 
 (defun adaptive-wrap-fill-context-prefix (beg en)
   "Like `fill-context-prefix', but with length adjusted by `adaptive-wrap-extra-indent'."
-  (let* ((fcp (fill-context-prefix beg en))
+  ;; Note: fill-context-prefix may return nil; See:
+  ;; http://article.gmane.org/gmane.emacs.devel/156285
+  (let* ((fcp (or (fill-context-prefix beg en) ""))
          (fcp-len (string-width fcp))
          (fill-char (if (< 0 fcp-len)
                         (string-to-char (substring fcp -1))
@@ -99,13 +101,48 @@ extra indent = 2
         (widen)
         (remove-text-properties (point-min) (point-max) '(wrap-prefix nil))))))
 
+;;;###autoload
+(easy-menu-add-item menu-bar-options-menu
+                    '("Line Wrapping in This Buffer")
+                    ["Adaptive Wrap"
+                     (lambda ()
+                       (interactive)
+		       (if adaptive-wrap-prefix-mode
+			   (adaptive-wrap-prefix-mode -1)
+			 (adaptive-wrap-prefix-mode 1)))
+                     :visible (menu-bar-menu-frame-live-and-visible-p)
+                     :help "Show wrapped long lines with an adjustable prefix"
+                     :style toggle
+                     :selected adaptive-wrap-prefix-mode])
+
+(defun adaptive-wrap-unload-function ()
+  "Cleanup adaptive-wrap package."
+  (easy-menu-remove-item menu-bar-options-menu
+                         '("Line Wrapping in This Buffer")
+                         "Adaptive Wrap"))
+
 ;;;; ChangeLog:
 
+;; 2013-07-19  R?diger Sonderfeld  <ruediger@c-plusplus.de>
+;; 
+;; 	* adaptive-wrap.el (menu-bar-options-menu): Add checkbox for Adaptive Wrap
+;; 	to the Line Wrapping submenu.
+;; 	(adaptive-wrap-unload-function): New function.
+;; 
+;; 2013-02-01  Stephen Berman  <stephen.berman@gmx.net>
+;; 
+;; 	Fix error during redisplay: (wrong-type-argument stringp nil)
+;; 
+;; 2012-12-05  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* adaptive-wrap.el (adaptive-wrap-extra-indent): Fix buffer-localness.
+;; 	Reported by Jonathan Kotta <jpkotta@gmail.com>.
+;; 
 ;; 2012-10-30  Stefan Monnier  <monnier@iro.umontreal.ca>
 ;; 
 ;; 	Clean up copyright notices.
 ;; 
-;; 2012-05-21  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 2012-05-21  Jonathan Kotta  <jpkotta@gmail.com>  (tiny change)
 ;; 
 ;; 	Add adaptive-wrap-extra-indent.
 ;; 	* adaptive-wrap/adaptive-wrap.el (adaptive-wrap-extra-indent): New var.
